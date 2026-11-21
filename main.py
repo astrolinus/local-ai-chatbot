@@ -14,6 +14,21 @@ ollama_config = config["ollama"]
 url = ollama_config["host"]
 
 
+def check_ollama_server():
+    try:
+        requests.head(url, timeout=5)
+        print("Ollama server is running = [TRUE]")
+        return True
+
+    except requests.exceptions.RequestException:
+        return False
+
+if not check_ollama_server():
+    cbf.ollama_serve()
+
+# Display welcome message and available commands
+cbf.introduction()
+
 # Send the user's prompt to the Ollama chat API and print the response.
 def ollama_request(prompt):
     
@@ -22,20 +37,19 @@ def ollama_request(prompt):
         if response.status_code == 200:
             # Parse and display the model's reply
             data = response.json()
-            print(data["message"]["content"])
+            print(f"\n{data["message"]["content"]}")
         else:
             print("Unexpected error:" , response.status_code)
 
     except Exception as e:
         print("Error", e)
 
-# Display welcome message and available commands
-cbf.introduction()
+
 
 # Main loop — continuously accept user input until '/bye' is entered
 while True:
 
-    prompt = input("Enter your prompt: \n")
+    prompt = input("\nEnter your prompt: \n")
 
     if prompt == "/bye":
         break
